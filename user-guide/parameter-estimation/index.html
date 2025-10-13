@@ -504,13 +504,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-compute_sensitivity-function" class="md-nav__link">
+  <a href="#the-compute_conversion_gain-function" class="md-nav__link">
     <span class="md-ellipsis">
-      The compute_sensitivity() Function
+      The compute_conversion_gain() Function
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The compute_sensitivity() Function">
+    <nav class="md-nav" aria-label="The compute_conversion_gain() Function">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -927,13 +927,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-compute_sensitivity-function" class="md-nav__link">
+  <a href="#the-compute_conversion_gain-function" class="md-nav__link">
     <span class="md-ellipsis">
-      The compute_sensitivity() Function
+      The compute_conversion_gain() Function
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="The compute_sensitivity() Function">
+    <nav class="md-nav" aria-label="The compute_conversion_gain() Function">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1096,22 +1096,22 @@
 <li><strong><code>conversion_gain</code></strong> (also called <code>photon_sensitivity</code>): The conversion factor from signal units to photon counts</li>
 </ol>
 <p>This guide explains how to estimate these parameters from your data.</p>
-<h2 id="the-compute_sensitivity-function">The <code>compute_sensitivity()</code> Function<a class="headerlink" href="#the-compute_sensitivity-function" title="Permanent link">&para;</a></h2>
+<h2 id="the-compute_conversion_gain-function">The <code>compute_conversion_gain()</code> Function<a class="headerlink" href="#the-compute_conversion_gain-function" title="Permanent link">&para;</a></h2>
 <p>The codec provides a built-in parameter estimation function:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">anscombe_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_sensitivity</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">anscombe_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_conversion_gain</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Load your movie data as (time, height, width)</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">movie</span> <span class="o">=</span> <span class="n">load_my_movie</span><span class="p">()</span>  <span class="c1"># Shape: (n_frames, height, width)</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Estimate parameters</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">result</span> <span class="o">=</span> <span class="n">compute_sensitivity</span><span class="p">(</span><span class="n">movie</span><span class="p">)</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">result</span> <span class="o">=</span> <span class="n">compute_conversion_gain</span><span class="p">(</span><span class="n">movie</span><span class="p">)</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conversion gain: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;sensitivity&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Zero level: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;zero_level&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="input-requirements">Input Requirements<a class="headerlink" href="#input-requirements" title="Permanent link">&para;</a></h3>
-<p>The <code>compute_sensitivity()</code> function expects:
+<p>The <code>compute_conversion_gain()</code> function expects:
 - <strong>Shape</strong>: <code>(time, height, width)</code> - temporal axis must be first
 - <strong>Data type</strong>: Integer or float
 - <strong>Minimum frames</strong>: At least 10-20 frames for reliable estimation
@@ -1218,14 +1218,14 @@
 - Not enough temporal variation</p>
 <h2 id="example-workflow">Example Workflow<a class="headerlink" href="#example-workflow" title="Permanent link">&para;</a></h2>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">anscombe_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_sensitivity</span><span class="p">,</span> <span class="n">AnscombeTransformV3</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">anscombe_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_conversion_gain</span><span class="p">,</span> <span class="n">AnscombeTransformV3</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">zarr</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># 1. Load temporal data</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">movie</span> <span class="o">=</span> <span class="n">load_movie</span><span class="p">()</span>  <span class="c1"># Shape: (100, 512, 512)</span>
 </span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
 </span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># 2. Estimate parameters</span>
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">params</span> <span class="o">=</span> <span class="n">compute_sensitivity</span><span class="p">(</span><span class="n">movie</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">params</span> <span class="o">=</span> <span class="n">compute_conversion_gain</span><span class="p">(</span><span class="n">movie</span><span class="p">)</span>
 </span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Estimated parameters:&quot;</span><span class="p">)</span>
 </span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Conversion gain: </span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;sensitivity&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> ADU/photon&quot;</span><span class="p">)</span>
 </span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Zero level: </span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;zero_level&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> ADU&quot;</span><span class="p">)</span>
