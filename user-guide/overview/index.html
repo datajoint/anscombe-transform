@@ -1493,7 +1493,8 @@
 
 <h1 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h1>
 <h2 id="the-anscombe-transform">The Anscombe Transform<a class="headerlink" href="#the-anscombe-transform" title="Permanent link">&para;</a></h2>
-<p>The Anscombe Transform is a variance-stabilizing transformation specifically designed for data with Poisson noise. In photon-limited imaging, the noise variance equals the signal mean (characteristic of Poisson statistics), which makes compression difficult because different intensity levels have different noise characteristics.</p>
+<p>The Anscombe Transform is a variance-stabilizing transformation specifically designed for data with Poisson noise. In photon-limited imaging, the noise variance grows linearly with the signal mean (characteristic of Poisson statistics), 
+which makes compression difficult because different intensity levels have different noise characteristics.</p>
 <h3 id="the-problem">The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
 <p>In photon-limited data:
 - Low intensity regions have low noise variance
@@ -1561,9 +1562,9 @@
 - Scales well with chunk-based parallel processing</p>
 <h3 id="accuracy">Accuracy<a class="headerlink" href="#accuracy" title="Permanent link">&para;</a></h3>
 <p>The codec is designed to be <strong>nearly lossless</strong> for photon-limited data:
-- Typical error: &lt; 1 photon per pixel
-- Error scales with <code>conversion_gain</code> and quantization (<code>beta</code> parameter)
-- For well-chosen parameters, reconstruction error is below the noise floor</p>
+- Max absolute error: ~ 0.25 noise-sigma per pixel (for <code>beta=0.5</code>)
+- Error scales with quantization (<code>beta</code> parameter)
+- For default parameters (<code>beta=0.5</code>), the noise variance is increased by a ~1 % with respect to the original noise variance and no bias is introduced.</p>
 <h2 id="when-to-use-this-codec">When to Use This Codec<a class="headerlink" href="#when-to-use-this-codec" title="Permanent link">&para;</a></h2>
 <h3 id="good-use-cases">Good Use Cases ✅<a class="headerlink" href="#good-use-cases" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1575,10 +1576,9 @@
 </ul>
 <h3 id="not-recommended">Not Recommended ❌<a class="headerlink" href="#not-recommended" title="Permanent link">&para;</a></h3>
 <ul>
-<li>Data without Poisson noise (e.g., pre-processed images)</li>
-<li>Data where camera parameters are unknown and can't be estimated</li>
-<li>Data with very high dynamic range (&gt; 16-bit)</li>
-<li>Data that has already been normalized or transformed</li>
+<li>Data with non-Poisson or non-stationalry noise (e.g., pre-processed images)</li>
+<li>Data where detector parameters are unknown and can't be estimated</li>
+<li>Data that has been transformed with a non-linear function (e.g. gamma correction)</li>
 </ul>
 <h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
 <ul>
