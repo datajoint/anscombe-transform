@@ -1,9 +1,8 @@
 # Parameter Estimation
 
-To use the Anscombe Transform codec effectively, you need two key parameters:
+To use the Anscombe Transform codec effectively, you need two key parameters: **`zero_level`** and **`conversion_gain`**.
 
-1. **`zero_level`**: The baseline signal value when no photons are detected
-2. **`conversion_gain`** (also called `photon_sensitivity`): The conversion factor from signal units to photon counts
+See [Codec Parameters](../concepts/parameters.md) for detailed explanations of what these parameters mean and how they relate to your camera hardware.
 
 This guide explains how to estimate these parameters from your data.
 
@@ -12,17 +11,23 @@ This guide explains how to estimate these parameters from your data.
 The codec provides a built-in parameter estimation function:
 
 ```python
-from anscombe_transform import compute_conversion_gain
 import numpy as np
+from anscombe_transform.estimate import compute_conversion_gain
+from anscombe_transform.common import make_demo_data
 
-# Load your movie data as (time, height, width)
-movie = load_my_movie()  # Shape: (n_frames, height, width)
+# Set seed for reproducibility
+np.random.seed(0)
+
+# Generate demo data
+movie = make_demo_data(n_frames=100)
 
 # Estimate parameters
 result = compute_conversion_gain(movie)
 
-print(f"Conversion gain: {result['sensitivity']:.3f}")
+print(f"Conversion gain: {result['conversion_gain']:.3f}")
+#> Conversion gain: 29.866
 print(f"Zero level: {result['zero_level']:.3f}")
+#> Zero level: 17.814
 ```
 
 ### Input Requirements
@@ -37,8 +42,8 @@ The `compute_conversion_gain()` function expects:
 
 The function uses the **noise transfer function** approach:
 
-1. **Compute temporal variance**: Calculate pixel-wise variance across time
-2. **Compute temporal mean**: Calculate pixel-wise mean across time
+1. **Compute temporal variance**: Calculate sample-wise variance across time
+2. **Compute temporal mean**: Calculate sample-wise mean across time
 3. **Fit noise model**: Use HuberRegressor to fit `variance = slope * mean + intercept`
 
 For Poisson noise: `variance = conversion_gain * (mean - zero_level)`
@@ -51,59 +56,20 @@ Therefore:
 
 The function returns a dictionary with:
 
+
 ```python
-{
-    'sensitivity': float,      # The conversion gain (photons per signal unit)
-    'zero_level': float,       # The baseline signal level
-    'variance': ndarray,       # Computed pixel-wise variance
-    'model': HuberRegressor    # The fitted regression model
+import numpy as np
+from sklearn.linear_model import HuberRegressor
+
+result = {
+    'conversion_gain': float,    # The conversion gain (signal units per event)
+    'zero_level': float,         # The baseline signal level
+    'variance': np.ndarray,      # Computed sample-wise variance
+    'model': HuberRegressor,     # The fitted regression model
+    'counts': np.ndarray,        # Event counts per sample
+    'min_intensity': int,        # Minimum intensity value
+    'max_intensity': int,        # Maximum intensity value
 }
-```
-
-## Manual Parameter Estimation
-
-If you know your camera specifications, you can compute the parameters manually:
-
-### Zero Level
-
-The zero level is typically:
-- **Dark current**: The signal level with the shutter closed
-- **Bias level**: The electronic offset added to prevent negative values
-
-To measure:
-1. Capture several frames with no light (shutter closed or lens cap on)
-2. Compute the median value across all pixels and frames
-
-```python
-dark_frames = capture_dark_frames(n=20)
-zero_level = np.median(dark_frames)
-```
-
-### Conversion Gain
-
-The conversion gain depends on your camera's specifications:
-
-```python
-# If you know electrons per ADU:
-electrons_per_adu = 2.5  # From camera spec sheet
-quantum_efficiency = 0.9  # Photons to electrons conversion
-
-conversion_gain = electrons_per_adu / quantum_efficiency
-```
-
-Or measure from a uniform illumination:
-
-```python
-# Capture frames of uniform illumination
-uniform_frames = capture_uniform_frames(n=100)
-
-# Compute mean and variance for each pixel
-mean = np.mean(uniform_frames, axis=0)
-variance = np.var(uniform_frames, axis=0)
-
-# For Poisson noise: variance = gain * (mean - zero)
-# Fit a line through the origin after subtracting zero level
-conversion_gain = np.median(variance / (mean - zero_level))
 ```
 
 ## Validation
@@ -111,89 +77,66 @@ conversion_gain = np.median(variance / (mean - zero_level))
 After estimating parameters, validate them:
 
 ```python
+import numpy as np
 from anscombe_transform import AnscombeTransformV3
+from anscombe_transform.estimate import compute_conversion_gain
+from anscombe_transform.common import make_demo_data
+
+# Set seed for reproducibility
+np.random.seed(0)
+
+# Generate test movie data
+movie = make_demo_data(n_frames=100)
+
+# Estimate parameters
+result = compute_conversion_gain(movie)
 
 # Create codec with estimated parameters
 codec = AnscombeTransformV3(
     zero_level=result['zero_level'],
-    conversion_gain=result['sensitivity']
+    conversion_gain=result['conversion_gain']
 )
 
-# Test on a sample frame
-frame = movie[0]
-encoded = codec.encode(frame)
-decoded = codec.decode(encoded)
-
-# Check reconstruction error
-error = np.abs(frame - decoded)
-max_error = np.max(error)
-mean_error = np.mean(error)
-
-print(f"Max error: {max_error:.2f} ADU")
-print(f"Mean error: {mean_error:.2f} ADU")
-print(f"Expected noise (1 photon): {result['sensitivity']:.2f} ADU")
-
-# Error should be less than ~1 photon equivalent
-assert max_error < 2 * result['sensitivity']
+# Print estimated parameters
+print(f"Estimated zero level: {result['zero_level']:.1f}")
+#> Estimated zero level: 17.8
+print(f"Estimated conversion gain: {result['conversion_gain']:.3f}")
+#> Estimated conversion gain: 29.866
 ```
-
-## Best Practices
-
-### Data Collection
-
-1. **Use multiple frames**: 20+ frames for reliable statistics
-2. **Avoid motion**: Use static scenes or stabilized video
-3. **Cover dynamic range**: Include both bright and dark regions
-4. **Use raw data**: Don't use pre-processed or normalized data
-
-### Parameter Refinement
-
-1. **Check fit quality**: Inspect `result['model'].score()` (R² should be > 0.95)
-2. **Visualize fit**: Plot variance vs. mean to verify linear relationship
-3. **Test reconstruction**: Verify that encoding/decoding preserves data quality
-
-### Common Issues
-
-**Negative zero level**: Usually indicates pre-processed data or incorrect bias subtraction. Check if your data has been normalized.
-
-**Very high conversion gain (> 10)**: May indicate the data is already in photon units or has been scaled.
-
-**Poor R² score (< 0.9)**: Could mean:
-- Too much motion in the scene
-- Non-Poisson noise dominates (e.g., readout noise)
-- Not enough temporal variation
 
 ## Example Workflow
 
+
 ```python
 import numpy as np
-from anscombe_transform import compute_conversion_gain, AnscombeTransformV3
+from anscombe_transform.estimate import compute_conversion_gain
+from anscombe_transform import AnscombeTransformV3
+from anscombe_transform.common import make_demo_data
 import zarr
 
-# 1. Load temporal data
-movie = load_movie()  # Shape: (100, 512, 512)
+# Set seed for reproducibility
+np.random.seed(0)
+
+# 1. Load temporal data (generate sample movie)
+movie = make_demo_data(n_frames=100)
 
 # 2. Estimate parameters
 params = compute_conversion_gain(movie)
-print(f"Estimated parameters:")
-print(f"  Conversion gain: {params['sensitivity']:.3f} ADU/photon")
-print(f"  Zero level: {params['zero_level']:.1f} ADU")
+print(f"Conversion gain: {params['conversion_gain']:.3f} ADU/event")
+#> Conversion gain: 29.866 ADU/event
+print(f"Zero level: {params['zero_level']:.1f} ADU")
+#> Zero level: 17.8 ADU
 
-# 3. Validate fit quality
-r2_score = params['model'].score(
-    params['variance'].ravel().reshape(-1, 1),
-    np.mean(movie, axis=0).ravel()
-)
-print(f"  Fit quality (R²): {r2_score:.3f}")
-
-# 4. Create codec with estimated parameters
+# 3. Create codec with estimated parameters
 codec = AnscombeTransformV3(
     zero_level=params['zero_level'],
-    conversion_gain=params['sensitivity']
+    conversion_gain=params['conversion_gain']
 )
 
-# 5. Create Zarr array
-arr = zarr.create(
+# 4. Create Zarr array in memory
+store = zarr.storage.MemoryStore()
+arr = zarr.create_array(
+    store=store,
     shape=movie.shape,
     chunks=(10, 512, 512),
     dtype='int16',
@@ -201,13 +144,6 @@ arr = zarr.create(
     zarr_format=3
 )
 
-# 6. Compress data
+# 5. Compress data
 arr[:] = movie
-print(f"Compression successful!")
 ```
-
-## Next Steps
-
-- [Zarr V2 Integration](zarr-v2.md)
-- [Zarr V3 Integration](zarr-v3.md)
-- [API Reference: estimate module](../api/estimate.md)
