@@ -94,9 +94,9 @@ The codec is designed for speed:
 ### Accuracy
 
 The codec is designed to be **nearly lossless** for photon-limited data:
-- Mean absolute error: < 0.25 noise-sigma per pixel (for beta = 0.5)
+- Max absolute error: ~ 0.25 noise-sigma per pixel (for `beta=0.5`)
 - Error scales with quantization (`beta` parameter)
-- For default parameters (beta=0.5), the noise variance is increased by a ~1 % with respect to the original noise variance and no bias is introduced.
+- For default parameters (`beta=0.5`), the noise variance is increased by a ~1 % with respect to the original noise variance and no bias is introduced.
 
 ## When to Use This Codec
 
@@ -110,10 +110,9 @@ The codec is designed to be **nearly lossless** for photon-limited data:
 
 ### Not Recommended ❌
 
-- Data without Poisson noise (e.g., pre-processed images)
-- Data where camera parameters are unknown and can't be estimated
-- Data with very high dynamic range (> 16-bit)
-- Data that has already been normalized or transformed
+- Data with non-Poisson or non-stationalry noise (e.g., pre-processed images)
+- Data where detector parameters are unknown and can't be estimated
+- Data that has been transformed with a non-linear function (e.g. gamma correction)
 
 ## Next Steps
 
