@@ -48,14 +48,15 @@ from anscombe_transform import AnscombeTransformV3
 # Create sample data with Poisson noise
 data = np.random.poisson(lam=50, size=(100, 512, 512)).astype('int16')
 
-# Create Zarr array with Anscombe codec
+# Create Zarr array with Anscombe codec and blosc compression
 store = zarr.storage.MemoryStore()
-arr = zarr.create(
+arr = zarr.create_array(
     store=store,
     shape=data.shape,
     chunks=(10, 512, 512),
     dtype='int16',
     filters=[AnscombeTransformV3(zero_level=100, conversion_gain=2.5)],
+    compressors=[{'name': 'blosc', 'configuration': {'cname': 'zstd', 'clevel': 5}}],
     zarr_format=3
 )
 

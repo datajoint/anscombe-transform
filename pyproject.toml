@@ -36,7 +36,9 @@ dependencies = [
 test = [
   "pytest==8.4.2",
   "pytest-cov",
+  "pytest-examples",
   "nbmake",
+  "ipykernel",
   "scipy",
   "imageio",
   "matplotlib",
@@ -196,6 +198,9 @@ filterwarnings = [
     "error",
     "ignore:Numcodecs codecs are not in the Zarr version 3 specification.*:UserWarning"
 ]
+
+[tool.pytest-examples]
+collect_ignore_glob = []
 
 [tool.numpydoc_validation]
 checks = [
