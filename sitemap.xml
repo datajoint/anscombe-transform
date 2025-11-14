@@ -2,50 +2,46 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/contributing/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/api/codec/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/api/estimate/</loc>
-         <lastmod>2025-11-10</lastmod>
-    </url>
-    <url>
-         <loc>https://datajoint.github.io/anscombe-transform/examples/workbook/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/getting-started/installation/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/getting-started/quick-start/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/spec/anscombe_transform/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/user-guide/overview/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/user-guide/parameter-estimation/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/user-guide/zarr-v2/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
     <url>
          <loc>https://datajoint.github.io/anscombe-transform/user-guide/zarr-v3/</loc>
-         <lastmod>2025-11-10</lastmod>
+         <lastmod>2025-11-14</lastmod>
     </url>
 </urlset>
