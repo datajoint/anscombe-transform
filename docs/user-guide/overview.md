@@ -2,7 +2,8 @@
 
 ## The Anscombe Transform
 
-The Anscombe Transform is a variance-stabilizing transformation specifically designed for data with Poisson noise. In photon-limited imaging, the noise variance equals the signal mean (characteristic of Poisson statistics), which makes compression difficult because different intensity levels have different noise characteristics.
+The Anscombe Transform is a variance-stabilizing transformation specifically designed for data with Poisson noise. In photon-limited imaging, the noise variance grows linearly with the signal mean (characteristic of Poisson statistics), 
+which makes compression difficult because different intensity levels have different noise characteristics.
 
 ### The Problem
 
@@ -93,9 +94,9 @@ The codec is designed for speed:
 ### Accuracy
 
 The codec is designed to be **nearly lossless** for photon-limited data:
-- Typical error: < 1 photon per pixel
-- Error scales with `conversion_gain` and quantization (`beta` parameter)
-- For well-chosen parameters, reconstruction error is below the noise floor
+- Mean absolute error: < 0.25 noise-sigma per pixel (for beta = 0.5)
+- Error scales with quantization (`beta` parameter)
+- For default parameters (beta=0.5), the noise variance is increased by a ~1 % with respect to the original noise variance and no bias is introduced.
 
 ## When to Use This Codec
 
