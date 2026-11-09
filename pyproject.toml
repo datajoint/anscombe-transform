@@ -72,7 +72,7 @@ python="3.13"
 features = ["test"]
 dependencies=[
   "zarr @ git+https://github.com/zarr-developers/zarr-python.git@main",
-  "numcodecs @ git+https://github.com/numcodecs/numcodecs.git@main",
+  "numcodecs @ git+https://github.com/zarr-developers/numcodecs.git@main",
   "scikit-learn @ git+https://github.com/scikit-learn/scikit-learn.git@main",
   ]
 
