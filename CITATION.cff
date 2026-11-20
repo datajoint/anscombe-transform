@@ -9,7 +9,7 @@ abstract: >
 authors:
   - family-names: Yatsenko
     given-names: Dimitri
-    email: dimitr@datajoint.com
+    email: dimitri@datajoint.com
   - family-names: Lecoq
     given-names: Jerome
     email: jeromel@alleninstitute.org
@@ -19,7 +19,7 @@ authors:
 contact:
   - family-names: Yatsenko
     given-names: Dimitri
-    email: dimitr@datajoint.com
+    email: dimitri@datajoint.com
 license: MIT
 preferred-citation:
   type: article
