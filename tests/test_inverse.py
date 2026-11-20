@@ -37,8 +37,8 @@ CODECS = [AnscombeTransformV2, AnscombeTransformV3]
 @pytest.mark.parametrize("encoded_dtype", ["uint8", "uint16"])
 @pytest.mark.parametrize(
     ("conversion_gain", "zero_level", "input_max"),
-    [(1.0, 0, 1000), (20.0, 100, 20000)],
-    ids=["raw counts", "gain 20"],
+    [(1.0, 0, 1000), (1.0, 100, 1000), (20.0, 100, 20000)],
+    ids=["raw counts", "raw counts, zero level 100", "gain 20"],
 )
 def test_round_trip_within_quantization_step(
     codec_class: type[AnscombeTransformV2 | AnscombeTransformV3],
@@ -53,12 +53,16 @@ def test_round_trip_within_quantization_step(
         encoded_dtype=encoded_dtype,
         decoded_dtype="int16",
     )
-    x = np.arange(input_max + 1, dtype="int16")
-    decoded = round_trip(codec, x)
-
     lookup_table = make_anscombe_lookup(
         conversion_gain, zero_level=zero_level, output_type=encoded_dtype
     )
+    # Inputs whose level overflows the encoded dtype cannot round-trip (an encode-side
+    # limitation, not part of the inverse), so stop before the first wrap.
+    wraps = np.flatnonzero(np.diff(lookup_table.astype(np.int64)) < 0)
+    if wraps.size:
+        input_max = min(input_max, int(wraps[0]))
+    x = np.arange(input_max + 1, dtype="int16")
+    decoded = round_trip(codec, x)
     step = quantization_step(x, lookup_table)
     error = np.abs(decoded.astype(np.int64) - x)
     # Midpoint of the step, rounded down: at most half the step away from any value in it.
@@ -96,13 +100,23 @@ def test_inverse_is_indexed_by_level(conversion_gain: float, zero_level: int) ->
     assert np.all(np.diff(inverse.astype(np.int64)) >= 0)
 
 
+def test_inverse_of_wrapped_table() -> None:
+    """A table that wraps around uses only its part before the first wrap."""
+    lookup_table = np.array([0, 2, 2, 4, 5, 5, 7, 1, 3], dtype="uint8")
+    # Midpoints 0, 1.5, 3, 4.5, 6 for levels 0, 2, 4, 5, 7; levels 1, 3, 6 interpolated.
+    expected = np.array([0, 0, 1, 2, 3, 4, 5, 6], dtype="int16")
+    assert np.array_equal(make_inverse_lookup(lookup_table), expected)
+
+
 def test_inverse_ignores_wrapped_levels() -> None:
     """
     At conversion_gain=1 the levels for large inputs overflow uint8 and wrap around.
     The inverse comes from the monotonic part of the table only.
     """
     lookup_table = make_anscombe_lookup(1.0, zero_level=0, output_type="uint8")
-    assert np.diff(lookup_table.astype(np.int64)).min() < 0  # the table does wrap
+    if np.diff(lookup_table.astype(np.int64)).min() >= 0:
+        # NumPy does not define an out-of-range float-to-int cast; this platform saturates.
+        pytest.skip("the uint8 cast does not wrap on this platform")
     inverse = make_inverse_lookup(lookup_table)
     assert inverse.size == 256
     assert np.all(np.diff(inverse.astype(np.int64)) >= 0)
