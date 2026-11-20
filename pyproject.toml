@@ -4,15 +4,16 @@ build-backend = "hatchling.build"
 
 [project]
 name = "anscombe_transform"
-version = "1.0.0"
+# The version comes from the git tag (vX.Y.Z) through hatch-vcs.
+dynamic = ["version"]
 
 authors = [
-  { name = "Dimitri Yatsenko", email = "dimitr@datajoint.com" },
+  { name = "Dimitri Yatsenko", email = "dimitri@datajoint.com" },
   { name = "Jerome Lecoq", email = "jeromel@alleninstitute.org" },
   { name = "Davis Bennett", email = "davis.v.bennett@gmail.com" },
 ]
 maintainers = [
-  { name = "Dimitri Yatsenko", email = "dimitr@datajoint.com" },
+  { name = "Dimitri Yatsenko", email = "dimitri@datajoint.com" },
 ]
 license = { file = "LICENSE" }
 description = "Zarr V2 and V3 codecs for compressing photon-limited movies."
@@ -72,7 +73,7 @@ python="3.13"
 features = ["test"]
 dependencies=[
   "zarr @ git+https://github.com/zarr-developers/zarr-python.git@main",
-  "numcodecs @ git+https://github.com/numcodecs/numcodecs.git@main",
+  "numcodecs @ git+https://github.com/zarr-developers/numcodecs.git@main",
   "scikit-learn @ git+https://github.com/scikit-learn/scikit-learn.git@main",
   ]
 
