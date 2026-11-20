@@ -80,10 +80,18 @@ def make_inverse_lookup(lookup_table: np.ndarray, output_type="int16") -> np.nda
     """
     Compute the inverse lookup table for a monotonic forward lookup table.
 
+    The inverse table is indexed by encoded level: entry ``k`` holds the midpoint of the
+    range of input values that encode to level ``k`` (rounded down for an integer
+    ``output_type``). When the forward table skips a level
+    (no input encodes to it, as happens at low conversion gains), its entry is interpolated
+    linearly between the neighbouring levels. The table has ``lookup_table.max() + 1``
+    entries; `lookup` clamps larger levels to the last entry.
+
     Parameters
     ----------
     lookup_table : np.ndarray
-        Monotonic forward lookup table.
+        Monotonic forward lookup table. If the table wraps around because its levels
+        overflow the encoded dtype, only the part before the first wrap is used.
     output_type : str, optional
         NumPy dtype string for output array, by default "int16".
 
@@ -92,9 +100,17 @@ def make_inverse_lookup(lookup_table: np.ndarray, output_type="int16") -> np.nda
     np.ndarray
         Inverse lookup table that maps encoded values back to original values.
     """
-    _, inv1 = np.unique(lookup_table, return_index=True)  # first entry
-    _, inv2 = np.unique(lookup_table[::-1], return_index=True)  # last entry
-    inverse = (inv1 + lookup_table.size - 1 - inv2) / 2
+    levels = np.asarray(lookup_table).astype(np.int64)
+    # Keep the monotonic part only: levels past an overflow of the encoded dtype wrap around.
+    wraps = np.flatnonzero(np.diff(levels) < 0)
+    if wraps.size:
+        levels = levels[: wraps[0] + 1]
+    present, first = np.unique(levels, return_index=True)  # first input of each level
+    _, last = np.unique(levels[::-1], return_index=True)  # last input of each level
+    last = levels.size - 1 - last
+    midpoints = (first + last) / 2
+    # Index by the level itself, not by its rank among the levels present.
+    inverse = np.interp(np.arange(present[-1] + 1), present, midpoints)
     return inverse.astype(output_type)
 
 
